@@ -132,7 +132,7 @@
     
     <div class="user-info">
       <span>Welcome, {{ current_user.username }}!</span>
-      <a href="{{ url_for('auth.logout') }}" class="logout-btn">Logout</a>
+      <button onclick="logout()" class="logout-btn">Logout</button>
     </div>
 
     <div class="dashboard">
@@ -323,11 +323,23 @@
     async function logout() {
       try {
         const response = await fetch('/auth/logout');
-        await handleResponse(response);
-        window.location.href = '/login';
+        if (response.ok) {
+          window.location.href = '/login';
+        } else {
+          // Check if response is JSON
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const data = await response.json();
+            throw new Error(data.error || 'Logout failed');
+          } else {
+            // If not JSON, just redirect to login
+            window.location.href = '/login';
+          }
+        }
       } catch (error) {
         console.error('Error logging out:', error);
-        alert(error.message || 'Error logging out');
+        // Even if there's an error, try to redirect to login
+        window.location.href = '/login';
       }
     }
 
