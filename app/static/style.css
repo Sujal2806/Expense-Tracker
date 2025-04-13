@@ -1,16 +1,53 @@
 /* backend/app/static/style.css */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Arial, sans-serif;
   background: #f4f4f4;
   margin: 0;
+  padding: 20px;
+  color: #333;
 }
 
 .container {
-  width: 400px;
-  margin: 40px auto;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.app-title {
+  text-align: center;
+  color: #2c3e50;
+  margin: 20px 0;
+  font-size: 2.5em;
+}
+
+.app-title span {
+  color: #3498db;
+}
+
+h1, h2 {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.user-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-controls button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 form {
@@ -20,15 +57,54 @@ form {
 }
 
 input, button {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input:focus {
+  outline: none;
+  border-color: #28a745;
+  box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.25);
 }
 
 button {
-  background: green;
+  background: #28a745;
   color: white;
+  border: none;
   cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background: #218838;
+}
+
+.btn-primary {
+  background: #007bff;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+}
+
+.btn-logout {
+  background: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+  padding: 8px 15px;
+  font-size: 0.9em;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  background: #f8f9fa;
+  color: #dc3545;
+  border-color: #dc3545;
 }
 
 ul {
@@ -37,8 +113,88 @@ ul {
 }
 
 li {
-  background: #eee;
+  background: #f8f9fa;
   padding: 10px;
   margin-bottom: 5px;
   border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+li button {
+  padding: 5px 10px;
+  margin-left: 5px;
+}
+
+a {
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* Animation for loading states */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.loading {
+  animation: pulse 1.5s infinite;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+
+  .dashboard {
+    grid-template-columns: 1fr !important;
+  }
+
+  .expense-item {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .expense-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* User Info Section */
+.user-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.user-info span {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.logout-btn {
+  background-color: #e74c3c;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
 }

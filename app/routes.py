@@ -1,47 +1,101 @@
 # backend/app/routes.py
-from flask import request, jsonify, render_template
-from . import create_app, db
-from .models import Expense
+from flask import Blueprint, request, jsonify, render_template
+from flask_login import login_required, current_user
+from .models import Expense, db
 
-app = create_app()
+main = Blueprint('main', __name__)
 
-@app.route("/")
+@main.route("/")
+@login_required
 def home():
     return render_template("index.html")
 
-@app.route("/expenses", methods=["GET", "POST"])
+@main.route("/expenses", methods=["GET", "POST"])
+@login_required
 def manage_expenses():
-    if request.method == "GET":
-        expenses = Expense.query.all()
-        return jsonify([
-            {"id": e.id, "amount": e.amount, "category": e.category, "date": e.date}
-            for e in expenses
-        ])
+    try:
+        if request.method == "GET":
+            expenses = Expense.query.filter_by(user_id=current_user.id).all()
+            return jsonify([
+                {"id": e.id, "amount": e.amount, "category": e.category, "date": e.date}
+                for e in expenses
+            ])
+        
+        if request.method == "POST":
+            data = request.get_json()
+            if not data:
+                return jsonify({"error": "No data provided"}), 400
+            
+            if not all(k in data for k in ["amount", "category", "date"]):
+                return jsonify({"error": "Missing required fields"}), 400
+                
+            try:
+                amount = float(data["amount"])
+                if amount <= 0:
+                    return jsonify({"error": "Amount must be positive"}), 400
+            except ValueError:
+                return jsonify({"error": "Invalid amount"}), 400
+
+            expense = Expense(
+                amount=amount,
+                category=data["category"],
+                date=data["date"],
+                user_id=current_user.id
+            )
+            db.session.add(expense)
+            db.session.commit()
+            return jsonify({
+                "message": "Expense added!",
+                "expense": {
+                    "id": expense.id,
+                    "amount": expense.amount,
+                    "category": expense.category,
+                    "date": expense.date
+                }
+            }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
     
-    if request.method == "POST":
-        data = request.json
-        expense = Expense(
-            amount=float(data["amount"]),
-            category=data["category"],
-            date=data["date"]
-        )
-        db.session.add(expense)
-        db.session.commit()
-        return jsonify({"message": "Expense added!"}), 201
-    
-@app.route("/expenses/<int:id>", methods=["PUT", "DELETE"])
+@main.route("/expenses/<int:id>", methods=["PUT", "DELETE"])
+@login_required
 def modify_expense(id):
-    expense = Expense.query.get_or_404(id)
+    try:
+        expense = Expense.query.filter_by(id=id, user_id=current_user.id).first_or_404()
 
-    if request.method == "PUT":
-        data = request.json
-        expense.amount = float(data["amount"])
-        expense.category = data["category"]
-        expense.date = data["date"]
-        db.session.commit()
-        return jsonify({"message": "Expense updated!"})
+        if request.method == "PUT":
+            data = request.get_json()
+            if not data:
+                return jsonify({"error": "No data provided"}), 400
+            
+            if not all(k in data for k in ["amount", "category", "date"]):
+                return jsonify({"error": "Missing required fields"}), 400
+                
+            try:
+                amount = float(data["amount"])
+                if amount <= 0:
+                    return jsonify({"error": "Amount must be positive"}), 400
+            except ValueError:
+                return jsonify({"error": "Invalid amount"}), 400
 
-    if request.method == "DELETE":
-        db.session.delete(expense)
-        db.session.commit()
-        return jsonify({"message": "Expense deleted!"})
+            expense.amount = amount
+            expense.category = data["category"]
+            expense.date = data["date"]
+            db.session.commit()
+            return jsonify({
+                "message": "Expense updated!",
+                "expense": {
+                    "id": expense.id,
+                    "amount": expense.amount,
+                    "category": expense.category,
+                    "date": expense.date
+                }
+            })
+
+        if request.method == "DELETE":
+            db.session.delete(expense)
+            db.session.commit()
+            return jsonify({"message": "Expense deleted!"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
