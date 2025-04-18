@@ -24,7 +24,7 @@ A modern web application for tracking personal expenses built with Flask, SQLite
 ## Prerequisites
 
 - Python 3.9 or higher
-- Docker and Docker Compose (for containerized deployment)
+- Docker (for containerized deployment)
 - Git (for version control)
 
 ## Installation & Setup
@@ -62,12 +62,17 @@ A modern web application for tracking personal expenses built with Flask, SQLite
 
 ### Docker Deployment
 
-1. Build and run using Docker Compose:
+1. Build the Docker image:
    ```bash
-   docker-compose up --build
+   docker build -t expense-tracker .
    ```
 
-2. Access the application at `http://localhost:5000`
+2. Run the container:
+   ```bash
+   docker run -p 5000:5000 -v $(pwd):/app -v $(pwd)/instance:/app/instance expense-tracker
+   ```
+
+3. Access the application at `http://localhost:5000`
 
 ## Docker Image
 
@@ -144,7 +149,6 @@ expense-tracker/
 │   └── workflows/
 │       └── ci-cd.yml
 ├── Dockerfile
-├── docker-compose.yml
 ├── requirements.txt
 └── README.md
 ```
